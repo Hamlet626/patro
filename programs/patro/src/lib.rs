@@ -6,13 +6,12 @@ declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 #[program]
 pub mod patro {
     use super::*;
-    use anchor_lang::solana_program::program::invoke_signed;
 
     pub fn initialize(ctx: Context<Initialize>,bump:u8) -> ProgramResult {
-        let patro=&ctx.accounts.patro;
+        let patro=&mut ctx.accounts.patro;
         patro.bump=bump;
         patro.base_account=ctx.accounts.base_account.key();
-        patro.created= *ctx.accounts.admin.key;
+        patro.admin= *ctx.accounts.admin.key;
         patro.token_addr=ctx.accounts.token_addr.key();
 
         Ok(())
@@ -24,8 +23,8 @@ pub mod patro {
 pub struct Initialize<'info> {
     #[account(init,
     seeds=[b"patro",
-    admin.to_account_info().key.to_bytes().to_ref(),
-    token_addr.key().to_bytes().to_ref()],
+    admin.to_account_info().key.to_bytes().as_ref(),
+    token_addr.key().to_bytes().as_ref()],
     bump=bump,payer=admin)]
     pub patro:Account<'info,Patro>,
 
@@ -44,10 +43,10 @@ pub struct Initialize<'info> {
 ///     token_addr.key.as_ref(),
 ///     bump]
 #[account]
-#[derive(default)]
+#[derive(Default)]
 pub struct Patro{
     pub bump:u8,
-    pub created:Pubkey,
+    pub admin:Pubkey,
 
     pub base_account:Pubkey,
     pub token_addr:Pubkey,
